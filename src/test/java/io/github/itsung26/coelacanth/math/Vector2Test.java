@@ -3,6 +3,7 @@ package io.github.itsung26.coelacanth.math;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -64,6 +65,12 @@ public class Vector2Test {
         assertEquals(new Vector2(0f, -1f), new Vector2(-5f, -8f).clamp(min, max));
         assertEquals(new Vector2(2f, 1f), new Vector2(9f, 9f).clamp(min, max));
         assertEquals(new Vector2(0f, 1f), new Vector2(-1f, 5f).clamp(min, max));
+
+        try {
+            new Vector2(0f, 0f).clamp(new Vector2(1f, 0f), new Vector2(0f, 1f));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     /**
@@ -76,6 +83,41 @@ public class Vector2Test {
         assertEquals(new Vector2(0f, 0f), new Vector2(-5f, -8f).clampf(0f, 2f));
         assertEquals(new Vector2(2f, 2f), new Vector2(9f, 9f).clampf(0f, 2f));
         assertEquals(new Vector2(0f, 2f), new Vector2(-1f, 5f).clampf(0f, 2f));
+
+        try {
+            new Vector2(0f, 0f).clampf(2f, 0f);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    /**
+     * Named constants match the documented screen-space directions, and the
+     * axis unit vectors have length {@code 1}.
+     */
+    @Test
+    public void testConstants() {
+        assertEquals(new Vector2(0f, 0f), Vector2.ZERO);
+        assertEquals(new Vector2(1f, 1f), Vector2.ONE);
+        assertEquals(new Vector2(-1f, 0f), Vector2.LEFT);
+        assertEquals(new Vector2(1f, 0f), Vector2.RIGHT);
+        assertEquals(new Vector2(0f, -1f), Vector2.UP);
+        assertEquals(new Vector2(0f, 1f), Vector2.DOWN);
+
+        assertTrue(Vector2.LEFT.isNormalized());
+        assertTrue(Vector2.RIGHT.isNormalized());
+        assertTrue(Vector2.UP.isNormalized());
+        assertTrue(Vector2.DOWN.isNormalized());
+    }
+
+    /**
+     * The no-arg constructor is the zero vector. The {@link Vector2i}
+     * constructor copies integer components as floats.
+     */
+    @Test
+    public void testConstructors() {
+        assertEquals(new Vector2(0f, 0f), new Vector2());
+        assertEquals(new Vector2(3f, -4f), new Vector2(new Vector2i(3, -4)));
     }
 
     /**
@@ -248,6 +290,10 @@ public class Vector2Test {
         assertEquals(new Vector2(1f, 1f), new Vector2(2f, 3f).pow(0f));
         assertEquals(new Vector2(2f, 3f), new Vector2(4f, 9f).pow(0.5f));
         assertEquals(new Vector2(0.5f, 0.25f), new Vector2(2f, 4f).pow(-1f));
+
+        Vector2 rootedNegative = new Vector2(-1f, 4f).pow(0.5f);
+        assertTrue(Float.isNaN(rootedNegative.x));
+        assertEquals(2f, rootedNegative.y, 0f);
     }
 
     /**

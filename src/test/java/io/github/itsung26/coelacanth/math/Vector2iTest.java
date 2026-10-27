@@ -42,6 +42,30 @@ public class Vector2iTest {
     }
 
     /**
+     * Named constants match the documented screen-space directions.
+     */
+    @Test
+    public void testConstants() {
+        assertEquals(new Vector2i(0, 0), Vector2i.ZERO);
+        assertEquals(new Vector2i(1, 1), Vector2i.ONE);
+        assertEquals(new Vector2i(-1, 0), Vector2i.LEFT);
+        assertEquals(new Vector2i(1, 0), Vector2i.RIGHT);
+        assertEquals(new Vector2i(0, -1), Vector2i.UP);
+        assertEquals(new Vector2i(0, 1), Vector2i.DOWN);
+    }
+
+    /**
+     * The no-arg constructor is the zero vector. The {@link Vector2} constructor
+     * truncates float components toward zero.
+     */
+    @Test
+    public void testConstructors() {
+        assertEquals(new Vector2i(0, 0), new Vector2i());
+        assertEquals(new Vector2i(3, -4), new Vector2i(new Vector2(3.9f, -4.9f)));
+        assertEquals(new Vector2i(0, 0), new Vector2i(new Vector2(0.9f, -0.9f)));
+    }
+
+    /**
      * {@link Vector2i#distanceTo(Vector2i)} is the Euclidean distance as a
      * float, including the 3-4-5 triangle and a point's distance to itself.
      */
@@ -101,6 +125,7 @@ public class Vector2iTest {
         assertEquals(new Vector2i(1, 1), new Vector2i(2, 3).pow(0f));
         assertEquals(new Vector2i(2, 3), new Vector2i(4, 9).pow(0.5f));
         assertEquals(new Vector2i(1, 1), new Vector2i(2, 3).pow(0.5f));
+        assertEquals(new Vector2i(0, 2), new Vector2i(-1, 4).pow(0.5f));
     }
 
     /**
