@@ -24,17 +24,17 @@ public class Vector2 {
     public float y;
 
     /** The zero vector, {@code (0, 0)}. */
-    public final Vector2 ZERO = new Vector2(0, 0);
+    public static final Vector2 ZERO = new Vector2(0, 0);
     /** Both components set to one, {@code (1, 1)}. */
-    public final Vector2 ONE = new Vector2(1, 1);
+    public static final Vector2 ONE = new Vector2(1, 1);
     /** Unit vector pointing left, {@code (-1, 0)}. */
-    public final Vector2 LEFT = new Vector2(-1, 0);
+    public static final Vector2 LEFT = new Vector2(-1, 0);
     /** Unit vector pointing right, {@code (1, 0)}. */
-    public final Vector2 RIGHT = new Vector2(1, 0);
+    public static final Vector2 RIGHT = new Vector2(1, 0);
     /** Unit vector pointing up in screen space, {@code (0, -1)}. */
-    public final Vector2 UP = new Vector2(0, -1);
+    public static final Vector2 UP = new Vector2(0, -1);
     /** Unit vector pointing down in screen space, {@code (0, 1)}. */
-    public final Vector2 DOWN = new Vector2(0, 1);
+    public static final Vector2 DOWN = new Vector2(0, 1);
 
     /**
      * Constructs a vector with the given components.
@@ -61,6 +61,23 @@ public class Vector2 {
      */
     public Vector2() {
         this(0, 0);
+    }
+
+    public Vector2 add(Vector2 to) {
+        return new Vector2(x + to.x, y + to.y);
+    }
+
+    // this - with, not with - this
+    public Vector2 subtract(Vector2 with) {
+        return new Vector2(x - with.x, y - with.y);
+    }
+
+    public Vector2 multiply(Vector2 with) {
+        return new Vector2(x * with.x, y * with.y);
+    }
+
+    public Vector2 pow(float power) {
+        return new Vector2((float) Math.pow(x, power), (float) Math.pow(y, power));
     }
 
     /**
@@ -158,6 +175,47 @@ public class Vector2 {
         return new Vector2((float) Math.floor(x), (float) Math.floor(y));
     }
 
+    public Vector2 clamp(Vector2 min, Vector2 max) {
+        return new Vector2(Math.clamp(x, min.x, max.x), Math.clamp(y, min.y, max.y));
+    }
+
+    public Vector2 clampf(float min, float max) {
+        return new Vector2(Math.clamp(x, min, max), Math.clamp(y, min, max));
+    }
+
+    public float distanceTo(Vector2 to) {
+        return (float) Math.sqrt((Math.pow(to.x - x, 2)) + (Math.pow(to.y - y, 2)));
+    }
+
+    /**
+     * Moves this vector towards to by amount delta.
+     * @param to
+     * @param delta
+     * @return
+     */
+    public Vector2 moveTowards(Vector2 to, float delta) {
+        return new Vector2(moveTowardsf(x, to.x, delta), moveTowardsf(y, to.y, delta));
+    }
+
+    public Vector2 lerp(Vector2 to, float weight) {
+        return new Vector2(lerpf(x, to.x, weight), lerpf(y, to.y, weight));
+    }
+
+    //#region PRIVATE HELPERS=======================================================================
+    private static float lerpf(float a, float b, float weight) {
+        return a + (b - a) * weight;
+    }
+
+    private static float moveTowardsf(float a, float b, float delta) {
+        if (Math.abs(b - a) <= delta) {
+            return b;
+        }
+
+        return a + Math.copySign(delta, b - a);
+    }
+    //#endregion==================================================================================
+
+    //#region BOILERPLATE===========================================================================
     /**
      * Compares this vector to {@code obj} by bit-exact {@code float} equality of
      * both components. {@code NaN} equals {@code NaN}, and {@code +0} is distinct
@@ -192,4 +250,5 @@ public class Vector2 {
     public String toString() {
         return "(" + x + ", " + y + ")";
     }
+    //#endregion================================================================================
 }
