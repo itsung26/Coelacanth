@@ -1,47 +1,172 @@
 package io.github.itsung26.coelacanth.math;
 
+/**
+ * A two-dimensional vector of {@code float} components.
+ * <p>
+ * Used throughout the renderer for 2D positions, directions, and texture
+ * coordinates. The Y axis points down, matching screen space: {@link #UP} is
+ * {@code (0, -1)} and {@link #DOWN} is {@code (0, 1)}.
+ * <p>
+ * Operations return new vectors unless they produce a scalar. This instance's
+ * {@link #x} and {@link #y} are left unchanged.
+ */
 public class Vector2 {
+    /**
+     * Absolute tolerance used by approximate length checks.
+     * Magnitudes within this distance of {@code 0} or {@code 1} are treated as
+     * those values.
+     */
+    public static final float EPSILON = 1e-6f;
+
+    /** Horizontal component. */
     public float x;
+    /** Vertical component. Positive values point down. */
     public float y;
 
+    /** The zero vector, {@code (0, 0)}. */
     public final Vector2 ZERO = new Vector2(0, 0);
+    /** Both components set to one, {@code (1, 1)}. */
     public final Vector2 ONE = new Vector2(1, 1);
+    /** Unit vector pointing left, {@code (-1, 0)}. */
     public final Vector2 LEFT = new Vector2(-1, 0);
+    /** Unit vector pointing right, {@code (1, 0)}. */
     public final Vector2 RIGHT = new Vector2(1, 0);
+    /** Unit vector pointing up in screen space, {@code (0, -1)}. */
     public final Vector2 UP = new Vector2(0, -1);
+    /** Unit vector pointing down in screen space, {@code (0, 1)}. */
     public final Vector2 DOWN = new Vector2(0, 1);
 
+    /**
+     * Constructs a vector with the given components.
+     *
+     * @param x horizontal component
+     * @param y vertical component
+     */
     public Vector2(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Constructs a vector by copying the integer components of {@code from}.
+     *
+     * @param from integer vector to convert
+     */
     public Vector2(Vector2i from) {
 
     }
 
+    /**
+     * Constructs a zero vector, {@code (0, 0)}.
+     */
     public Vector2() {
         this(0, 0);
     }
 
     /**
-     * @return
-     *      A new vector with all components in absolute values (i.e. positive).
+     * Returns the Euclidean length of this vector,
+     * {@code sqrt(x² + y²)}.
+     *
+     * @return the magnitude; {@code 0} for the zero vector
+     */
+    public float magnitude() {
+        return (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    }
+
+    /**
+     * Returns a new vector with each component replaced by its absolute value.
+     *
+     * @return a vector whose components are all non-negative
      */
     public Vector2 abs() {
         return new Vector2(Math.abs(x), Math.abs(y));
     }
 
     /**
-     * @return
-     *      A new vector with all components rounded up (towards positive infinity)
+     * Returns the dot product of this vector and {@code with}.
+     * Equal to {@code |this| · |with| · cos(θ)}, where {@code θ} is the angle
+     * between them.
+     *
+     * @param with the other vector
+     * @return the scalar dot product
      */
-    public Vector2 ceil() {
-        return new Vector2((float)Math.ceil(x), (float)Math.ceil(y));
+    public float dot(Vector2 with) {
+        return (x * with.x) + (y * with.y);
     }
 
-    
+    /**
+     * Returns the 2D analog of the cross product of this vector and {@code with}.
+     * This is the signed magnitude of the 3D cross product if both vectors were
+     * treated as lying in the XY plane: {@code x * with.y - y * with.x}.
+     * The sign is positive when {@code with} is counterclockwise from this
+     * vector.
+     *
+     * @param with the other vector
+     * @return the signed scalar cross product
+     */
+    public float cross(Vector2 with) {
+        return (x * with.y) - (y * with.x);
+    }
 
+    /**
+     * Returns a new vector pointing in the same direction with length {@code 1}.
+     * If this vector's length is within {@link #EPSILON} of zero, returns
+     * {@code (0, 0)} instead of dividing by zero.
+     *
+     * @return a unit-length copy, or the zero vector if this vector is
+     *         approximately zero
+     */
+    public Vector2 normalized() {
+        float mag = magnitude();
+        if (mag < EPSILON) {
+            return new Vector2(0, 0);
+        }
+
+        return new Vector2(x / mag, y / mag);
+    }
+
+    /**
+     * Returns whether this vector has approximately unit length:
+     * {@code |magnitude() - 1| < EPSILON}.
+     * <p>
+     * This accepts vectors produced by {@link #normalized()} despite rounding
+     * error. The tradeoff is that the result may be incorrect when the magnitude
+     * is very close to zero.
+     *
+     * @return {@code true} if {@link #magnitude()} is within {@link #EPSILON} of
+     *         {@code 1}
+     */
+    public boolean isNormalized() {
+        return Math.abs(magnitude() - 1f) < EPSILON;
+    }
+
+    /**
+     * Returns a new vector with each component rounded toward positive infinity.
+     *
+     * @return a vector of ceiled components
+     */
+    public Vector2 ceil() {
+        return new Vector2((float) Math.ceil(x), (float) Math.ceil(y));
+    }
+
+    /**
+     * Returns a new vector with each component rounded toward negative infinity.
+     *
+     * @return a vector of floored components
+     */
+    public Vector2 floor() {
+        return new Vector2((float) Math.floor(x), (float) Math.floor(y));
+    }
+
+    /**
+     * Compares this vector to {@code obj} by bit-exact {@code float} equality of
+     * both components. {@code NaN} equals {@code NaN}, and {@code +0} is distinct
+     * from {@code -0}.
+     *
+     * @param obj the object to compare
+     * @return {@code true} if {@code obj} is a {@code Vector2} with the same
+     *         component bits
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -58,6 +183,11 @@ public class Vector2 {
         return true;
     }
 
+    /**
+     * Returns a string of the form {@code (x, y)}.
+     *
+     * @return the component pair in parentheses
+     */
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
