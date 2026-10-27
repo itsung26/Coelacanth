@@ -2,7 +2,6 @@ package io.github.itsung26.coelacanth.math;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -11,7 +10,7 @@ import org.junit.Test;
  * Tests for {@link Vector2i}.
  * Each method below covers the documented behavior of the matching
  * {@code Vector2i} operation, including integer-specific cases such as
- * exact unit-length checks and identity rounding.
+ * truncation.
  */
 public class Vector2iTest {
     /**
@@ -30,47 +29,27 @@ public class Vector2iTest {
     }
 
     /**
-     * {@link Vector2i#ceil()} copies the vector: integer components are already
-     * integral. The result is a distinct instance.
+     * {@link Vector2i#add(Vector2i)} is the component-wise sum and does not
+     * modify the original vector.
      */
     @Test
-    public void testCeil() {
-        Vector2i original = new Vector2i(-2, 5);
-        Vector2i ceiled = original.ceil();
-
-        assertEquals(original, ceiled);
-        assertNotSame(original, ceiled);
-        assertEquals(new Vector2i(0, 0), new Vector2i(0, 0).ceil());
+    public void testAdd() {
+        Vector2i original = new Vector2i(1, 2);
+        assertEquals(new Vector2i(4, 6), original.add(new Vector2i(3, 4)));
+        assertEquals(new Vector2i(1, 2), original);
+        assertEquals(original, original.add(new Vector2i(0, 0)));
+        assertEquals(new Vector2i(-1, 1), new Vector2i(2, -3).add(new Vector2i(-3, 4)));
     }
 
     /**
-     * {@link Vector2i#cross(Vector2i)} is the signed 2D analog of the cross
-     * product: positive when {@code with} is counterclockwise from this
-     * vector, negative when clockwise, and zero when the vectors are parallel.
+     * {@link Vector2i#distanceTo(Vector2i)} is the Euclidean distance as a
+     * float, including the 3-4-5 triangle and a point's distance to itself.
      */
     @Test
-    public void testCross() {
-        Vector2i right = new Vector2i(1, 0);
-        Vector2i down = new Vector2i(0, 1);
-
-        assertEquals(1, right.cross(down));
-        assertEquals(-1, down.cross(right));
-        assertEquals(0, right.cross(right));
-        assertEquals(2 * 8 - 3 * 5, new Vector2i(2, 3).cross(new Vector2i(5, 8)));
-    }
-
-    /**
-     * {@link Vector2i#dot(Vector2i)} is the sum of pairwise products: {@code 1}
-     * for a unit vector with itself, {@code 0} for perpendicular vectors.
-     */
-    @Test
-    public void testDot() {
-        Vector2i right = new Vector2i(1, 0);
-        Vector2i down = new Vector2i(0, 1);
-
-        assertEquals(1, right.dot(right));
-        assertEquals(0, right.dot(down));
-        assertEquals(2 * 4 + 3 * 5, new Vector2i(2, 3).dot(new Vector2i(4, 5)));
+    public void testDistanceTo() {
+        assertEquals(5f, new Vector2i(0, 0).distanceTo(new Vector2i(3, 4)), 0f);
+        assertEquals(5f, new Vector2i(1, 2).distanceTo(new Vector2i(4, 6)), 0f);
+        assertEquals(0f, new Vector2i(3, 4).distanceTo(new Vector2i(3, 4)), 0f);
     }
 
     /**
@@ -88,37 +67,6 @@ public class Vector2iTest {
     }
 
     /**
-     * {@link Vector2i#floor()} copies the vector: integer components are already
-     * integral. The result is a distinct instance.
-     */
-    @Test
-    public void testFloor() {
-        Vector2i original = new Vector2i(-2, 5);
-        Vector2i floored = original.floor();
-
-        assertEquals(original, floored);
-        assertNotSame(original, floored);
-        assertEquals(new Vector2i(0, 0), new Vector2i(0, 0).floor());
-    }
-
-    /**
-     * {@link Vector2i#isNormalized()} is exact: only the axis directions
-     * {@code (±1, 0)} and {@code (0, ±1)} have unit length.
-     */
-    @Test
-    public void testIsNormalized() {
-        assertTrue(new Vector2i(1, 0).isNormalized());
-        assertTrue(new Vector2i(-1, 0).isNormalized());
-        assertTrue(new Vector2i(0, 1).isNormalized());
-        assertTrue(new Vector2i(0, -1).isNormalized());
-
-        assertFalse(new Vector2i(0, 0).isNormalized());
-        assertFalse(new Vector2i(1, 1).isNormalized());
-        assertFalse(new Vector2i(3, 4).isNormalized());
-        assertFalse(new Vector2i(2, 0).isNormalized());
-    }
-
-    /**
      * {@link Vector2i#magnitude()} is {@code sqrt(x² + y²)} as a float,
      * including the 3-4-5 triangle and the zero vector.
      */
@@ -131,21 +79,41 @@ public class Vector2iTest {
     }
 
     /**
-     * {@link Vector2i#normalized()} returns a unit-length {@link Vector2}.
-     * The zero vector yields {@code (0, 0)}; the original integer vector is
-     * not modified.
+     * {@link Vector2i#multiply(Vector2i)} is the component-wise product and does
+     * not modify the original vector.
      */
     @Test
-    public void testNormalized() {
-        Vector2i original = new Vector2i(3, 4);
-        Vector2 unit = original.normalized();
+    public void testMultiply() {
+        Vector2i original = new Vector2i(2, 3);
+        assertEquals(new Vector2i(8, 15), original.multiply(new Vector2i(4, 5)));
+        assertEquals(new Vector2i(2, 3), original);
+        assertEquals(new Vector2i(0, 0), original.multiply(new Vector2i(0, 0)));
+        assertEquals(new Vector2i(-4, 6), new Vector2i(-2, 3).multiply(new Vector2i(2, 2)));
+    }
 
-        assertEquals(new Vector2(0.6f, 0.8f), unit);
-        assertEquals(1f, unit.magnitude(), Vector2.EPSILON);
-        assertEquals(new Vector2i(3, 4), original);
+    /**
+     * {@link Vector2i#pow(float)} raises each component to the given power and
+     * truncates toward zero.
+     */
+    @Test
+    public void testPow() {
+        assertEquals(new Vector2i(4, 9), new Vector2i(2, 3).pow(2f));
+        assertEquals(new Vector2i(1, 1), new Vector2i(2, 3).pow(0f));
+        assertEquals(new Vector2i(2, 3), new Vector2i(4, 9).pow(0.5f));
+        assertEquals(new Vector2i(1, 1), new Vector2i(2, 3).pow(0.5f));
+    }
 
-        assertEquals(new Vector2(0f, 0f), new Vector2i(0, 0).normalized());
-        assertEquals(new Vector2(1f, 0f), new Vector2i(1, 0).normalized());
+    /**
+     * {@link Vector2i#subtract(Vector2i)} is {@code this - with}, not the
+     * reverse, and does not modify the original vector.
+     */
+    @Test
+    public void testSubtract() {
+        Vector2i original = new Vector2i(5, 5);
+        assertEquals(new Vector2i(4, 3), original.subtract(new Vector2i(1, 2)));
+        assertEquals(new Vector2i(5, 5), original);
+        assertEquals(new Vector2i(1, -1), new Vector2i(1, 0).subtract(new Vector2i(0, 1)));
+        assertEquals(new Vector2i(-1, 1), new Vector2i(0, 1).subtract(new Vector2i(1, 0)));
     }
 
     /**

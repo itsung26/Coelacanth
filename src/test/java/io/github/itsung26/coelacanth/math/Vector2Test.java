@@ -2,7 +2,6 @@ package io.github.itsung26.coelacanth.math;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -30,6 +29,19 @@ public class Vector2Test {
     }
 
     /**
+     * {@link Vector2#add(Vector2)} is the component-wise sum and does not
+     * modify the original vector.
+     */
+    @Test
+    public void testAdd() {
+        Vector2 original = new Vector2(1f, 2f);
+        assertEquals(new Vector2(4f, 6f), original.add(new Vector2(3f, 4f)));
+        assertEquals(new Vector2(1f, 2f), original);
+        assertEquals(original, original.add(new Vector2(0f, 0f)));
+        assertEquals(new Vector2(-1f, 1f), new Vector2(2f, -3f).add(new Vector2(-3f, 4f)));
+    }
+
+    /**
      * {@link Vector2#ceil()} rounds each component toward positive infinity.
      */
     @Test
@@ -37,6 +49,33 @@ public class Vector2Test {
         assertEquals(new Vector2(2f, 4f), new Vector2(1.1f, 3.9f).ceil());
         assertEquals(new Vector2(-1f, -2f), new Vector2(-1.5f, -2.1f).ceil());
         assertEquals(new Vector2(2f, -3f), new Vector2(2f, -3f).ceil());
+    }
+
+    /**
+     * {@link Vector2#clamp(Vector2, Vector2)} clamps each component independently
+     * to the matching component of {@code min} and {@code max}.
+     */
+    @Test
+    public void testClamp() {
+        Vector2 min = new Vector2(0f, -1f);
+        Vector2 max = new Vector2(2f, 1f);
+
+        assertEquals(new Vector2(1f, 0f), new Vector2(1f, 0f).clamp(min, max));
+        assertEquals(new Vector2(0f, -1f), new Vector2(-5f, -8f).clamp(min, max));
+        assertEquals(new Vector2(2f, 1f), new Vector2(9f, 9f).clamp(min, max));
+        assertEquals(new Vector2(0f, 1f), new Vector2(-1f, 5f).clamp(min, max));
+    }
+
+    /**
+     * {@link Vector2#clampf(float, float)} clamps both components to the same
+     * scalar range.
+     */
+    @Test
+    public void testClampf() {
+        assertEquals(new Vector2(1f, 1f), new Vector2(1f, 1f).clampf(0f, 2f));
+        assertEquals(new Vector2(0f, 0f), new Vector2(-5f, -8f).clampf(0f, 2f));
+        assertEquals(new Vector2(2f, 2f), new Vector2(9f, 9f).clampf(0f, 2f));
+        assertEquals(new Vector2(0f, 2f), new Vector2(-1f, 5f).clampf(0f, 2f));
     }
 
     /**
@@ -53,6 +92,17 @@ public class Vector2Test {
         assertEquals(-1f, down.cross(right), 0f);
         assertEquals(0f, right.cross(right), 0f);
         assertEquals(2f * 8f - 3f * 5f, new Vector2(2f, 3f).cross(new Vector2(5f, 8f)), 0f);
+    }
+
+    /**
+     * {@link Vector2#distanceTo(Vector2)} is the Euclidean distance, including
+     * the 3-4-5 triangle and a point's distance to itself.
+     */
+    @Test
+    public void testDistanceTo() {
+        assertEquals(5f, new Vector2(0f, 0f).distanceTo(new Vector2(3f, 4f)), 0f);
+        assertEquals(5f, new Vector2(1f, 2f).distanceTo(new Vector2(4f, 6f)), 0f);
+        assertEquals(0f, new Vector2(3f, 4f).distanceTo(new Vector2(3f, 4f)), 0f);
     }
 
     /**
@@ -115,6 +165,23 @@ public class Vector2Test {
     }
 
     /**
+     * {@link Vector2#lerp(Vector2, float)} mixes per component. Weight {@code 0}
+     * is this vector, {@code 1} is the target, and values outside {@code [0, 1]}
+     * extrapolate.
+     */
+    @Test
+    public void testLerp() {
+        Vector2 from = new Vector2(0f, 10f);
+        Vector2 to = new Vector2(10f, 0f);
+
+        assertEquals(from, from.lerp(to, 0f));
+        assertEquals(to, from.lerp(to, 1f));
+        assertEquals(new Vector2(5f, 5f), from.lerp(to, 0.5f));
+        assertEquals(new Vector2(20f, -10f), from.lerp(to, 2f));
+        assertEquals(from, from.lerp(to, 0.5f).lerp(from, 1f));
+    }
+
+    /**
      * {@link Vector2#magnitude()} is {@code sqrt(x² + y²)}, including the
      * 3-4-5 triangle and the zero vector.
      */
@@ -124,6 +191,35 @@ public class Vector2Test {
         assertEquals(5f, new Vector2(-3f, 4f).magnitude(), 0f);
         assertEquals(0f, new Vector2(0f, 0f).magnitude(), 0f);
         assertEquals(1f, new Vector2(0f, 1f).magnitude(), 0f);
+    }
+
+    /**
+     * {@link Vector2#moveTowards(Vector2, float)} steps each component toward
+     * the target by at most {@code |delta|} and snaps when close enough. A
+     * negative {@code delta} still approaches, but does not snap.
+     */
+    @Test
+    public void testMoveTowards() {
+        Vector2 from = new Vector2(0f, 0f);
+        Vector2 to = new Vector2(10f, 4f);
+
+        assertEquals(new Vector2(3f, 3f), from.moveTowards(to, 3f));
+        assertEquals(to, from.moveTowards(to, 10f));
+        assertEquals(to, to.moveTowards(to, 1f));
+        assertEquals(new Vector2(2f, 2f), from.moveTowards(to, -2f));
+    }
+
+    /**
+     * {@link Vector2#multiply(Vector2)} is the component-wise product and does
+     * not modify the original vector.
+     */
+    @Test
+    public void testMultiply() {
+        Vector2 original = new Vector2(2f, 3f);
+        assertEquals(new Vector2(8f, 15f), original.multiply(new Vector2(4f, 5f)));
+        assertEquals(new Vector2(2f, 3f), original);
+        assertEquals(new Vector2(0f, 0f), original.multiply(new Vector2(0f, 0f)));
+        assertEquals(new Vector2(-4f, 6f), new Vector2(-2f, 3f).multiply(new Vector2(2f, 2f)));
     }
 
     /**
@@ -141,6 +237,30 @@ public class Vector2Test {
 
         assertEquals(new Vector2(0f, 0f), new Vector2(0f, 0f).normalized());
         assertEquals(new Vector2(0f, 0f), new Vector2(Vector2.EPSILON / 2f, 0f).normalized());
+    }
+
+    /**
+     * {@link Vector2#pow(float)} raises each component to the given power.
+     */
+    @Test
+    public void testPow() {
+        assertEquals(new Vector2(4f, 9f), new Vector2(2f, 3f).pow(2f));
+        assertEquals(new Vector2(1f, 1f), new Vector2(2f, 3f).pow(0f));
+        assertEquals(new Vector2(2f, 3f), new Vector2(4f, 9f).pow(0.5f));
+        assertEquals(new Vector2(0.5f, 0.25f), new Vector2(2f, 4f).pow(-1f));
+    }
+
+    /**
+     * {@link Vector2#subtract(Vector2)} is {@code this - with}, not the reverse,
+     * and does not modify the original vector.
+     */
+    @Test
+    public void testSubtract() {
+        Vector2 original = new Vector2(5f, 5f);
+        assertEquals(new Vector2(4f, 3f), original.subtract(new Vector2(1f, 2f)));
+        assertEquals(new Vector2(5f, 5f), original);
+        assertEquals(new Vector2(1f, -1f), new Vector2(1f, 0f).subtract(new Vector2(0f, 1f)));
+        assertEquals(new Vector2(-1f, 1f), new Vector2(0f, 1f).subtract(new Vector2(1f, 0f)));
     }
 
     /**

@@ -58,6 +58,50 @@ public class Vector2i {
     }
 
     /**
+     * Returns the component-wise sum of this vector and {@code to}.
+     *
+     * @param to the vector to add
+     * @return a new vector {@code (x + to.x, y + to.y)}
+     */
+    public Vector2i add(Vector2i to) {
+        return new Vector2i(x + to.x, y + to.y);
+    }
+
+    /**
+     * Returns the component-wise difference of this vector minus {@code with}.
+     * The operand order is {@code this - with}, not {@code with - this}.
+     *
+     * @param with the vector to subtract
+     * @return a new vector {@code (x - with.x, y - with.y)}
+     */
+    public Vector2i subtract(Vector2i with) {
+        return new Vector2i(x - with.x, y - with.y);
+    }
+
+    /**
+     * Returns the component-wise (Hadamard) product of this vector and
+     * {@code with}. This is not a scalar multiple and not a 2D cross product.
+     *
+     * @param with the vector to multiply with
+     * @return a new vector {@code (x * with.x, y * with.y)}
+     */
+    public Vector2i multiply(Vector2i with) {
+        return new Vector2i(x * with.x, y * with.y);
+    }
+
+    /**
+     * Returns a new vector with each component raised to {@code power}, then
+     * truncated toward zero. A negative base with a non-integer exponent yields
+     * {@code 0} for that component, because {@code (int) NaN} is {@code 0}.
+     *
+     * @param power the exponent applied to both components
+     * @return a new vector {@code ((int) x^power, (int) y^power)}
+     */
+    public Vector2i pow(float power) {
+        return new Vector2i((int) Math.pow(x, power), (int) Math.pow(y, power));
+    }
+
+    /**
      * Returns the Euclidean length of this vector,
      * {@code sqrt(x² + y²)}.
      *
@@ -77,82 +121,20 @@ public class Vector2i {
     }
 
     /**
-     * Returns the dot product of this vector and {@code with}.
-     * Equal to {@code |this| · |with| · cos(θ)}, where {@code θ} is the angle
-     * between them.
+     * Returns the Euclidean distance from this vector to {@code to},
+     * {@code sqrt((to.x - x)² + (to.y - y)²)}.
      *
-     * @param with the other vector
-     * @return the scalar dot product
+     * @param to the target position
+     * @return the distance as a {@code float}; {@code 0} when {@code to} is this
+     *         point
      */
-    public int dot(Vector2i with) {
-        return (x * with.x) + (y * with.y);
+    public float distanceTo(Vector2i to) {
+        long dx = (long) to.x - x;
+        long dy = (long) to.y - y;
+        return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
-    /**
-     * Returns the 2D analog of the cross product of this vector and {@code with}.
-     * This is the signed magnitude of the 3D cross product if both vectors were
-     * treated as lying in the XY plane: {@code x * with.y - y * with.x}.
-     * The sign is positive when {@code with} is counterclockwise from this
-     * vector.
-     *
-     * @param with the other vector
-     * @return the signed scalar cross product
-     */
-    public int cross(Vector2i with) {
-        return (x * with.y) - (y * with.x);
-    }
-
-    /**
-     * Returns a new {@link Vector2} pointing in the same direction with length
-     * {@code 1}. Integer components cannot represent a unit vector unless this
-     * vector is already axis-aligned, so the result is a float vector.
-     * If this vector's length is within {@link Vector2#EPSILON} of zero, returns
-     * {@code (0, 0)} instead of dividing by zero.
-     *
-     * @return a unit-length {@link Vector2}, or the zero vector if this vector
-     *         is approximately zero
-     */
-    public Vector2 normalized() {
-        float mag = magnitude();
-        if (mag < Vector2.EPSILON) {
-            return new Vector2(0, 0);
-        }
-
-        return new Vector2(x / mag, y / mag);
-    }
-
-    /**
-     * Returns whether this vector has unit length.
-     * The only integer unit vectors are the axis directions
-     * {@code (±1, 0)} and {@code (0, ±1)}, so the check is exact:
-     * {@code x² + y² == 1}.
-     *
-     * @return {@code true} if {@link #magnitude()} is exactly {@code 1}
-     */
-    public boolean isNormalized() {
-        return (long) x * x + (long) y * y == 1L;
-    }
-
-    /**
-     * Returns a new vector with each component rounded toward positive infinity.
-     * Integer components are already integral, so this is a copy of this vector.
-     *
-     * @return a vector of ceiled components
-     */
-    public Vector2i ceil() {
-        return new Vector2i(x, y);
-    }
-
-    /**
-     * Returns a new vector with each component rounded toward negative infinity.
-     * Integer components are already integral, so this is a copy of this vector.
-     *
-     * @return a vector of floored components
-     */
-    public Vector2i floor() {
-        return new Vector2i(x, y);
-    }
-
+    //#region BOILERPLATE===========================================================================
     /**
      * Compares this vector to {@code obj} by exact integer equality of both
      * components.
@@ -186,4 +168,5 @@ public class Vector2i {
     public String toString() {
         return "(" + x + ", " + y + ")";
     }
+    //#endregion================================================================================
 }
