@@ -1,0 +1,17 @@
+These classes are data classes for the many, many mathematical operations required in
+a render engine.
+
+Despite sharing many, many methods, these classes do not inherit a common
+interface or extend a superclass.
+
+Why? These vector types appear similar but are not in any way specializations of each other.
+Storing coordinates in a generic structure would not be the right layout either, as a Vector<N>
+or a Matrix<R,C> would store coordinates as an underlying array, doubling allocation count.
+Java also does not allow using raw numerics as generic types so you could not write Vector<3>().
+
+In Coelacanth and other render engines, it is very rare for a call site to not know the dimension
+of a vector.
+
+
+The math of rendering is almost entirely linear algebra (90% vector math), with some
+trigonometry and a little bit of calculus.
