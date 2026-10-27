@@ -53,7 +53,7 @@ public class Vector2 {
      * @param from integer vector to convert
      */
     public Vector2(Vector2i from) {
-
+        this(from.x, from.y);
     }
 
     /**
