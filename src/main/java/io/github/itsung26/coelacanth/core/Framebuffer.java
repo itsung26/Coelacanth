@@ -14,4 +14,10 @@ public class Framebuffer {
     int width;
     /** Framebuffer height in pixels. */
     int height;
+
+    public Framebuffer (int width, int height) {
+        this.width = width;
+        this.height = height;
+        color = new int[]
+    }
 }
