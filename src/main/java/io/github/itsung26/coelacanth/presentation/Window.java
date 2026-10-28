@@ -24,10 +24,10 @@ import io.github.itsung26.coelacanth.math.Vector2i;
  * {@code Main} loop: poll events, issue a draw, then {@link #swapBuffers()}.
  */
 public class Window implements Closeable{
-    /** Client-area height in pixels. */
-    private int height;
     /** Client-area width in pixels. */
     private int width;
+    /** Client-area height in pixels. */
+    private int height;
     /** Text shown in the window title bar. */
     private String title;
     /** Native {@code GLFWwindow *} handle returned by {@code glfwCreateWindow}. */
@@ -35,19 +35,35 @@ public class Window implements Closeable{
 
     /**
      * Initializes GLFW and creates a visible, non-resizable window.
-     * <p>
-     * Parameter order is height then width, unlike GLFW's
-     * {@code glfwCreateWindow(width, height, ...)}.
      *
-     * @param height client-area height in pixels
      * @param width  client-area width in pixels
+     * @param height client-area height in pixels
      * @param title  window title-bar text
      * @throws IllegalStateException if GLFW fails to initialize or the window
      *         cannot be created
      */
-    public Window(int height, int width, String title) {
-        this.height = height;
+    public Window(int width, int height, String title) {
+        this(width, height, title, null);
+    }
+
+    /**
+     * Initializes GLFW and creates a visible, non-resizable window with a close
+     * callback.
+     * <p>
+     * The close callback is registered at construction and cannot be changed
+     * afterward.
+     *
+     * @param width               client-area width in pixels
+     * @param height              client-area height in pixels
+     * @param title               window title-bar text
+     * @param windowCloseCallback invoked when the user attempts to close the
+     *                            window; may be {@code null} for no callback
+     * @throws IllegalStateException if GLFW fails to initialize or the window
+     *         cannot be created
+     */
+    public Window(int width, int height, String title, GLFWWindowCloseCallbackI windowCloseCallback) {
         this.width = width;
+        this.height = height;
         this.title = title;
 
         if (!glfwInit()) {
@@ -66,6 +82,8 @@ public class Window implements Closeable{
         if (longAddress == NULL) {
             throw new IllegalStateException("Failed to initialize window.");
         }
+
+        glfwSetWindowCloseCallback(longAddress, windowCloseCallback);
 
         glfwMakeContextCurrent(longAddress);
         glfwSwapInterval(1);
@@ -103,7 +121,7 @@ public class Window implements Closeable{
      *
      * @return a new vector; {@code x} is width and {@code y} is height
      */
-    public Vector2i getWindowSize() {
+    public Vector2i getSize() {
         return new Vector2i(width, height);
     }
 
@@ -114,17 +132,6 @@ public class Window implements Closeable{
      */
     public long getlongAddress() {
         return longAddress;
-    }
-
-    /**
-     * Registers a callback invoked when the user attempts to close the window
-     * (for example by clicking the title-bar close button).
-     *
-     * @param func GLFW close callback; may be {@code null} to remove the current
-     *        callback
-     */
-    public void setWindowCloseCallback(GLFWWindowCloseCallbackI func) {
-        glfwSetWindowCloseCallback(longAddress, func);
     }
 
     /**
