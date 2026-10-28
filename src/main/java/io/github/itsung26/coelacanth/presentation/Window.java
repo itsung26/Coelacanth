@@ -50,8 +50,8 @@ public class Window implements Closeable{
      * Initializes GLFW and creates a visible, non-resizable window with a close
      * callback.
      * <p>
-     * The close callback is registered at construction and cannot be changed
-     * afterward.
+     * The close callback may also be changed later with
+     * {@link #setWindowCloseCallback(GLFWWindowCloseCallbackI)}.
      *
      * @param width               client-area width in pixels
      * @param height              client-area height in pixels
@@ -83,7 +83,7 @@ public class Window implements Closeable{
             throw new IllegalStateException("Failed to initialize window.");
         }
 
-        glfwSetWindowCloseCallback(longAddress, windowCloseCallback);
+        setWindowCloseCallback(windowCloseCallback);
 
         glfwMakeContextCurrent(longAddress);
         glfwSwapInterval(1);
@@ -132,6 +132,17 @@ public class Window implements Closeable{
      */
     public long getlongAddress() {
         return longAddress;
+    }
+
+    /**
+     * Registers a callback invoked when the user attempts to close the window
+     * (for example by clicking the title-bar close button).
+     *
+     * @param func GLFW close callback; may be {@code null} to remove the current
+     *        callback
+     */
+    public void setWindowCloseCallback(GLFWWindowCloseCallbackI func) {
+        glfwSetWindowCloseCallback(longAddress, func);
     }
 
     /**
