@@ -2,6 +2,7 @@ package io.github.itsung26.coelacanth.presentation;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.opengl.GL.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -76,6 +77,8 @@ public class Window implements Closeable{
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
+        // Java is a high-level language, so it has no pointer type. The pointer address
+        // is returned as a java Long.
         longAddress = glfwCreateWindow(width, height, title, NULL, NULL);
 
         // Validate to ensure creation succeeded.
