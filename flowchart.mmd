@@ -1,0 +1,27 @@
+flowchart TD
+  subgraph once [Once at startup]
+    A[Create Window / GLFW context] --> B[GL.createCapabilities]
+    B --> C[Allocate Framebuffer color and depth]
+    C --> D[Create a GL texture for the blit]
+  end
+
+  subgraph frame [Each frame]
+    E[pollEvents] --> F[Clear CPU color and depth]
+    F --> G[Three vertices in screen space]
+    G --> H[Bounding box of the triangle]
+    H --> I{Pixel inside triangle?}
+    I -->|no| J[Next pixel]
+    I -->|yes| K{Depth test pass?}
+    K -->|no| J
+    K -->|yes| L[Write color and depth]
+    L --> J
+    J --> I
+    I -->|box done| M[Upload color to GL texture]
+    M --> N[Draw a fullscreen quad]
+    N --> O[glfwSwapBuffers]
+  end
+
+  D --> E
+  O --> P{shouldClose?}
+  P -->|no| E
+  P -->|yes| Q[Destroy window]
