@@ -23,7 +23,9 @@ public class Framebuffer {
         color = new int[width * height];
         depth = new float[width * height];
 
-        Arrays.fill(color, 0xFF000000);
+        // Pure red.
+        Arrays.fill(color, 0xFFFF0000);
+        // Populate the depth buffer.
         Arrays.fill(depth, 1f);
     }
 
